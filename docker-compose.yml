@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+
+  twitter:
+    command: go run cmd/twitter/main.go
+    depends_on:
+      - 'mongo'
+    image: golang
+    volumes:
+      - .:/go/src/twitter
+    working_dir: /go/src/twitter
+    links:
+      - mongo
+    env_file:
+      - .env
+
+  http:
+    command: go run cmd/http/main.go
+    ports:
+      - '8080:1323'
+    depends_on:
+      - 'mongo'
+    image: golang
+    volumes:
+      - .:/go/src/twitter
+    working_dir: /go/src/twitter
+    links:
+      - mongo
+    env_file:
+      - .env
+
+  mongo:
+    image: 'mongo:3.0'
+    ports:
+      - '27017:27017'
+    volumes:
+      - 'mongo:/data/db'
+
+volumes:
+  mongo:
