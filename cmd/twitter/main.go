@@ -1,8 +1,8 @@
 package main
 
 import (
-	"twitter/mongo"
-	"twitter/twitter"
+	"go-tweet-processor/mongo"
+	"go-tweet-processor/twitter"
 )
 
 var mgs *mongo.MongoDataStore

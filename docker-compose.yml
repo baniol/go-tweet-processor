@@ -8,8 +8,8 @@ services:
       - 'mongo'
     image: golang
     volumes:
-      - .:/go/src/twitter
-    working_dir: /go/src/twitter
+      - .:/go/src/go-tweet-processor
+    working_dir: /go/src/go-tweet-processor
     links:
       - mongo
     env_file:
@@ -23,8 +23,8 @@ services:
       - 'mongo'
     image: golang
     volumes:
-      - .:/go/src/twitter
-    working_dir: /go/src/twitter
+      - .:/go/src/go-tweet-processor
+    working_dir: /go/src/go-tweet-processor
     links:
       - mongo
     env_file:

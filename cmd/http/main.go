@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/labstack/echo"
+	"go-tweet-processor/mongo"
 	"net/http"
 	"os"
 	"strconv"
-	"twitter/mongo"
 )
 
 var mgs *mongo.MongoDataStore
