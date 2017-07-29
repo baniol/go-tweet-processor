@@ -15,8 +15,8 @@ services:
     env_file:
       - .env
 
-  http:
-    command: go run cmd/http/main.go
+  web:
+    command: go run cmd/web/main.go
     ports:
       - '8080:1323'
     depends_on:
