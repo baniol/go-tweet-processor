@@ -36,6 +36,8 @@ services:
       - '27017:27017'
     volumes:
       - 'mongo:/data/db'
+    logging:
+      driver: "none"
 
 volumes:
   mongo:
