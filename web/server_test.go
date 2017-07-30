@@ -5,6 +5,7 @@ import (
 	// "encoding/json"
 	// "net/http"
 	// "os"
+	"fmt"
 	"testing"
 
 	// "github.com/Sirupsen/logrus"
@@ -19,5 +20,6 @@ func TestMissingEndpoint(t *testing.T) {
 	// err := extractError(t, body)
 	// assert.Equal(t, http.StatusNotFound, err.Code)
 	// assert.NotEmpty(t, err.Message)
+	fmt.Println("test essages")
 	assert.NotNil(t, "asdf", "success message")
 }
