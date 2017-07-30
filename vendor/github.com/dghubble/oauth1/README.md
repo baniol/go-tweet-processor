@@ -1,5 +1,5 @@
 
-# OAuth1 [![Build Status](https://travis-ci.org/dghubble/oauth1.png)](https://travis-ci.org/dghubble/oauth1) [![GoDoc](http://godoc.org/github.com/dghubble/oauth1?status.png)](http://godoc.org/github.com/dghubble/oauth1)
+# OAuth1 [![Build Status](https://travis-ci.org/dghubble/oauth1.png)](https://travis-ci.org/dghubble/oauth1) [![Coverage](http://gocover.io/_badge/github.com/dghubble/oauth1)](http://gocover.io/github.com/dghubble/oauth1) [![GoDoc](http://godoc.org/github.com/dghubble/oauth1?status.png)](http://godoc.org/github.com/dghubble/oauth1)
 <img align="right" src="https://storage.googleapis.com/dghubble/oauth1.png">
 
 OAauth1 is a Go implementation of the [OAuth 1 spec](https://tools.ietf.org/html/rfc5849).
@@ -59,7 +59,7 @@ config := oauth1.Config{
     ```go
     authorizationURL, err := config.AuthorizationURL(requestToken)
     // handle err
-    http.Redirect(w, req, authorizationURL.String(), http.StatusFound)
+    http.Redirect(w, req, authorizationURL.String(), htt.StatusFound)
     ```
 
     Receive the callback from the OAuth1 provider in a handler.
@@ -74,7 +74,7 @@ config := oauth1.Config{
     ```go
     accessToken, accessSecret, err := config.AccessToken(requestToken, requestSecret, verifier)
     // handle error
-    token := oauth1.NewToken(accessToken, accessSecret)
+    token := NewToken(accessToken, accessSecret)
     ```
 
 Check the [examples](examples) to see this authorization flow in action from the command line, with Twitter PIN-based login and Tumblr login.

@@ -72,7 +72,6 @@ type (
 		TLSServer        *http.Server
 		Listener         net.Listener
 		TLSListener      net.Listener
-		AutoTLSManager   autocert.Manager
 		DisableHTTP2     bool
 		Debug            bool
 		HideBanner       bool
@@ -80,15 +79,16 @@ type (
 		Binder           Binder
 		Validator        Validator
 		Renderer         Renderer
+		AutoTLSManager   autocert.Manager
 		// Mutex            sync.RWMutex
 		Logger Logger
 	}
 
 	// Route contains a handler and information for matching against requests.
 	Route struct {
-		Method string `json:"method"`
-		Path   string `json:"path"`
-		Name   string `json:"name"`
+		Method  string `json:"method"`
+		Path    string `json:"path"`
+		Handler string `json:"handler"`
 	}
 
 	// HTTPError represents an error that occurred while handling a request.
@@ -121,7 +121,7 @@ type (
 
 	// i is the interface for Echo and Group.
 	i interface {
-		GET(string, HandlerFunc, ...MiddlewareFunc) *Route
+		GET(string, HandlerFunc, ...MiddlewareFunc)
 	}
 )
 
@@ -295,7 +295,7 @@ func New() (e *Echo) {
 func (e *Echo) NewContext(r *http.Request, w http.ResponseWriter) Context {
 	return &context{
 		request:  r,
-		response: &Response{echo: e, Writer: w},
+		response: NewResponse(w, e),
 		store:    make(Map),
 		echo:     e,
 		pvalues:  make([]string, *e.maxParam),
@@ -355,88 +355,84 @@ func (e *Echo) Use(middleware ...MiddlewareFunc) {
 
 // CONNECT registers a new CONNECT route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) CONNECT(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(CONNECT, path, h, m...)
+func (e *Echo) CONNECT(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(CONNECT, path, h, m...)
 }
 
 // DELETE registers a new DELETE route for a path with matching handler in the router
 // with optional route-level middleware.
-func (e *Echo) DELETE(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(DELETE, path, h, m...)
+func (e *Echo) DELETE(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(DELETE, path, h, m...)
 }
 
 // GET registers a new GET route for a path with matching handler in the router
 // with optional route-level middleware.
-func (e *Echo) GET(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(GET, path, h, m...)
+func (e *Echo) GET(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(GET, path, h, m...)
 }
 
 // HEAD registers a new HEAD route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) HEAD(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(HEAD, path, h, m...)
+func (e *Echo) HEAD(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(HEAD, path, h, m...)
 }
 
 // OPTIONS registers a new OPTIONS route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) OPTIONS(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(OPTIONS, path, h, m...)
+func (e *Echo) OPTIONS(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(OPTIONS, path, h, m...)
 }
 
 // PATCH registers a new PATCH route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) PATCH(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(PATCH, path, h, m...)
+func (e *Echo) PATCH(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(PATCH, path, h, m...)
 }
 
 // POST registers a new POST route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) POST(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(POST, path, h, m...)
+func (e *Echo) POST(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(POST, path, h, m...)
 }
 
 // PUT registers a new PUT route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) PUT(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(PUT, path, h, m...)
+func (e *Echo) PUT(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(PUT, path, h, m...)
 }
 
 // TRACE registers a new TRACE route for a path with matching handler in the
 // router with optional route-level middleware.
-func (e *Echo) TRACE(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
-	return e.Add(TRACE, path, h, m...)
+func (e *Echo) TRACE(path string, h HandlerFunc, m ...MiddlewareFunc) {
+	e.add(TRACE, path, h, m...)
 }
 
 // Any registers a new route for all HTTP methods and path with matching handler
 // in the router with optional route-level middleware.
-func (e *Echo) Any(path string, handler HandlerFunc, middleware ...MiddlewareFunc) []*Route {
-	routes := make([]*Route, 0)
+func (e *Echo) Any(path string, handler HandlerFunc, middleware ...MiddlewareFunc) {
 	for _, m := range methods {
-		routes = append(routes, e.Add(m, path, handler, middleware...))
+		e.add(m, path, handler, middleware...)
 	}
-	return routes
 }
 
 // Match registers a new route for multiple HTTP methods and path with matching
 // handler in the router with optional route-level middleware.
-func (e *Echo) Match(methods []string, path string, handler HandlerFunc, middleware ...MiddlewareFunc) []*Route {
-	routes := make([]*Route, 0)
+func (e *Echo) Match(methods []string, path string, handler HandlerFunc, middleware ...MiddlewareFunc) {
 	for _, m := range methods {
-		routes = append(routes, e.Add(m, path, handler, middleware...))
+		e.add(m, path, handler, middleware...)
 	}
-	return routes
 }
 
 // Static registers a new route with path prefix to serve static files from the
 // provided root directory.
-func (e *Echo) Static(prefix, root string) *Route {
+func (e *Echo) Static(prefix, root string) {
 	if root == "" {
 		root = "." // For security we want to restrict to CWD.
 	}
-	return static(e, prefix, root)
+	static(e, prefix, root)
 }
 
-func static(i i, prefix, root string) *Route {
+func static(i i, prefix, root string) {
 	h := func(c Context) error {
 		p, err := PathUnescape(c.Param("*"))
 		if err != nil {
@@ -447,22 +443,20 @@ func static(i i, prefix, root string) *Route {
 	}
 	i.GET(prefix, h)
 	if prefix == "/" {
-		return i.GET(prefix+"*", h)
+		i.GET(prefix+"*", h)
+	} else {
+		i.GET(prefix+"/*", h)
 	}
-
-	return i.GET(prefix+"/*", h)
 }
 
 // File registers a new route with path to serve a static file.
-func (e *Echo) File(path, file string) *Route {
-	return e.GET(path, func(c Context) error {
+func (e *Echo) File(path, file string) {
+	e.GET(path, func(c Context) error {
 		return c.File(file)
 	})
 }
 
-// Add registers a new route for an HTTP method and path with matching handler
-// in the router with optional route-level middleware.
-func (e *Echo) Add(method, path string, handler HandlerFunc, middleware ...MiddlewareFunc) *Route {
+func (e *Echo) add(method, path string, handler HandlerFunc, middleware ...MiddlewareFunc) {
 	name := handlerName(handler)
 	e.router.Add(method, path, func(c Context) error {
 		h := handler
@@ -473,12 +467,11 @@ func (e *Echo) Add(method, path string, handler HandlerFunc, middleware ...Middl
 		return h(c)
 	})
 	r := &Route{
-		Method: method,
-		Path:   path,
-		Name:   name,
+		Method:  method,
+		Path:    path,
+		Handler: name,
 	}
 	e.router.routes[method+path] = r
-	return r
 }
 
 // Group creates a new router group with prefix and optional group-level middleware.
@@ -490,22 +483,12 @@ func (e *Echo) Group(prefix string, m ...MiddlewareFunc) (g *Group) {
 
 // URI generates a URI from handler.
 func (e *Echo) URI(handler HandlerFunc, params ...interface{}) string {
-	name := handlerName(handler)
-	return e.Reverse(name, params...)
-}
-
-// URL is an alias for `URI` function.
-func (e *Echo) URL(h HandlerFunc, params ...interface{}) string {
-	return e.URI(h, params...)
-}
-
-// Reverse generates an URL from route name and provided parameters.
-func (e *Echo) Reverse(name string, params ...interface{}) string {
 	uri := new(bytes.Buffer)
 	ln := len(params)
 	n := 0
+	name := handlerName(handler)
 	for _, r := range e.router.routes {
-		if r.Name == name {
+		if r.Handler == name {
 			for i, l := 0, len(r.Path); i < l; i++ {
 				if r.Path[i] == ':' && n < ln {
 					for ; i < l && r.Path[i] != '/'; i++ {
@@ -521,6 +504,11 @@ func (e *Echo) Reverse(name string, params ...interface{}) string {
 		}
 	}
 	return uri.String()
+}
+
+// URL is an alias for `URI` function.
+func (e *Echo) URL(h HandlerFunc, params ...interface{}) string {
+	return e.URI(h, params...)
 }
 
 // Routes returns the registered routes.
