@@ -1,39 +1,38 @@
-package mongo
+package db
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	// "gopkg.in/mgo.v2/bson"
 	"log"
 	"os"
 )
 
-// type DBgetter interface {
-// 	CountTweets() (int, error)
-// }
+type DBLayer interface {
+	CountTweets() (int, error)
+	// GetAuthors() []bson.M
+}
 
 type MongoDataStore struct {
 	*mgo.Session
 }
 
-func NewMongoStore() *MongoDataStore {
+// @TODO data store as a receiver ?
+func ConnectMongo() (*MongoDataStore, error) {
 	mongoURI := fmt.Sprintf("%s:%s", os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
 	log.Printf("Connecting to mongodb at: %s\n", mongoURI)
 	session, err := mgo.Dial(mongoURI)
 	if err != nil {
 		log.Fatalf("Error connecting to the mongodb at %s\n", mongoURI)
 	}
-	return &MongoDataStore{Session: session}
+	return &MongoDataStore{Session: session}, nil
 }
 
 func (ms *MongoDataStore) getCollection() *mgo.Collection {
 	return ms.Session.DB(os.Getenv("MONGO_DB_NAME")).C(os.Getenv("MONGO_COLLECTION"))
 }
 
-// @TODO separate file
-
-// @TODO DBgetter interface as receiver?
 func (ms *MongoDataStore) CountTweets() (int, error) {
 	session := ms.Copy()
 	defer session.Close()
@@ -41,6 +40,7 @@ func (ms *MongoDataStore) CountTweets() (int, error) {
 	return coll.Count()
 }
 
+/*
 func (ms *MongoDataStore) GetAuthors() []bson.M {
 	session := ms.Copy()
 	defer session.Close()
@@ -147,3 +147,5 @@ func (ms *MongoDataStore) InsertTweet(tweet []byte) {
 	}
 	log.Println("[√] Tweet inserted")
 }
+
+*/

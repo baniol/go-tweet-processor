@@ -2,6 +2,7 @@
 
 ## TODO
 
+* server with raw net/http (no echo framework)
 * work on api responses, errors, etc.
 * log levels (logrus, echo logger ?)
 * log level setup to env variable
