@@ -11,8 +11,9 @@ import (
 
 type DBLayer interface {
 	CountTweets() (int, error)
-	InsertTweet([]byte)
+	// InsertTweet([]byte)
 	// GetAuthors() []bson.M
+	// GetTags() []bson.M
 }
 
 type MongoDataStore struct {

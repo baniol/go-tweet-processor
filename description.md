@@ -76,7 +76,7 @@ http://relistan.com/writing-testable-apps-in-go/ - good and simple explanation o
 ---
 
 
-https://gist.github.com/nmerouze/2e26a02d23c4c62173fd - example of how to apply Collection
+https://gist.github.com/nmerouze/2e26a02d23c4c62173fd - example of how to apply Collection + modify Header with next + reflect.TypeOf
 
 https://github.com/thylong/regexrace !! - tests + deploy with kubectl
 
