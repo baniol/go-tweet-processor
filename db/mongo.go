@@ -1,7 +1,7 @@
 package db
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	// "gopkg.in/mgo.v2/bson"
@@ -11,6 +11,7 @@ import (
 
 type DBLayer interface {
 	CountTweets() (int, error)
+	InsertTweet([]byte)
 	// GetAuthors() []bson.M
 }
 
@@ -133,7 +134,7 @@ func (ms *MongoDataStore) GetAuthorTweets(name string) interface{} {
 	}
 	return names
 }
-
+*/
 func (ms *MongoDataStore) InsertTweet(tweet []byte) {
 	session := ms.Copy()
 	defer session.Close()
@@ -147,5 +148,3 @@ func (ms *MongoDataStore) InsertTweet(tweet []byte) {
 	}
 	log.Println("[√] Tweet inserted")
 }
-
-*/

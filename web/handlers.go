@@ -24,7 +24,7 @@ type requestHandler struct {
 
 func InitHandlers(dblayer db.DBLayer) {
 	h := new(requestHandler)
-	h.dbConn = dblayer
+	h.dbConn = dblayer // @TODO change name of dblayer
 	// err := h.connect()
 	// if err != nil {
 	// 	// @TODO circut breaker

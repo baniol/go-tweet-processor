@@ -71,6 +71,11 @@ http://thylong.com/golang/2016/mocking-mongo-in-golang/
 
     All of our functions will then deal with interfaces instead of the underlying structs (that can be either a real database or a mock).
 
+http://relistan.com/writing-testable-apps-in-go/ - good and simple explanation of DI and interfaces for testing
+
+---
+
+
 https://gist.github.com/nmerouze/2e26a02d23c4c62173fd - example of how to apply Collection
 
 https://github.com/thylong/regexrace !! - tests + deploy with kubectl
