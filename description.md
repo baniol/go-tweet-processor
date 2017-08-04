@@ -75,7 +75,15 @@ http://relistan.com/writing-testable-apps-in-go/ - good and simple explanation o
 
 ---
 
+https://elithrar.github.io/article/testing-http-handlers-go/ - testing handlers
 
+Tip: make strings like application/json or Content-Type package-level constants, so you don’t have to type (or typo) them over and over. A typo in your tests can cause unintended behaviour, becasue you’re not testing what you think you are.
+
+You should also make sure to test not just for success, but for failure too: test that your handlers return errors when they should (e.g. a HTTP 403, or a HTTP 500).
+
+
+
+---
 https://gist.github.com/nmerouze/2e26a02d23c4c62173fd - example of how to apply Collection + modify Header with next + reflect.TypeOf
 
 https://github.com/thylong/regexrace !! - tests + deploy with kubectl
@@ -88,7 +96,6 @@ http://www.unixstickers.com/image/cache/data/stickers/golang/golang.sh-600x600.p
 
 https://medium.com/@mvmaasakkers/writing-integration-tests-with-mongodb-support-231580a566cd - integration testing
 
-https://elithrar.github.io/article/testing-http-handlers-go/ - testing handlers
 
 https://developers.almamedia.fi/painless-mongodb-testing-with-docker-and-golang/ - testing with docker
 

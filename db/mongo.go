@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2"
-	// "gopkg.in/mgo.v2/bson"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"os"
 )
@@ -12,7 +12,7 @@ import (
 type DBLayer interface {
 	CountTweets() (int, error)
 	// InsertTweet([]byte)
-	// GetAuthors() []bson.M
+	GetAuthors() interface{}
 	// GetTags() []bson.M
 }
 
@@ -42,8 +42,7 @@ func (ms *MongoDataStore) CountTweets() (int, error) {
 	return coll.Count()
 }
 
-/*
-func (ms *MongoDataStore) GetAuthors() []bson.M {
+func (ms *MongoDataStore) GetAuthors() interface{} {
 	session := ms.Copy()
 	defer session.Close()
 	coll := ms.getCollection()
@@ -64,7 +63,7 @@ func (ms *MongoDataStore) GetAuthors() []bson.M {
 
 	pipe := coll.Pipe(pipeline)
 
-	results := []bson.M{}
+	var results []interface{}
 	err1 := pipe.All(&results)
 	// @TODO to return - bubble up
 	if err1 != nil {
@@ -73,6 +72,7 @@ func (ms *MongoDataStore) GetAuthors() []bson.M {
 	return results
 }
 
+/*
 func (ms *MongoDataStore) GetTags() []bson.M {
 	session := ms.Copy()
 	defer session.Close()

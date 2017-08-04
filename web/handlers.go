@@ -3,7 +3,7 @@ package web
 import (
 	"fmt"
 	// "gopkg.in/mgo.v2/dbtest"
-	// "encoding/json"
+	"encoding/json"
 	"go-tweet-processor/db"
 	"log"
 	"net/http"
@@ -21,7 +21,7 @@ func InitHandlers(dblayer db.DBLayer) {
 	log.Println("Handlers initiated")
 
 	http.HandleFunc("/count", h.countHandler)
-	// http.HandleFunc("/authors", h.authorsHandler)
+	http.HandleFunc("/authors", h.authorsHandler)
 	// http.HandleFunc("/tags", h.tagsHandler)
 }
 
@@ -30,10 +30,9 @@ func (rh *requestHandler) countHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, strconv.Itoa(count))
 }
 
-/*
 func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request) {
 	authors := rh.dbConn.GetAuthors()
-	js, err := json.Marshal(authors) // encoder ?
+	js, err := json.Marshal(authors) // encoder ? move marshaling to db llayer ?
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,6 +41,7 @@ func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request)
 	w.Write(js) // io.WriteString(w, `{"alive": true}`) ?
 }
 
+/*
 func (rh *requestHandler) tagsHandler(w http.ResponseWriter, r *http.Request) {
 	tags := rh.dbConn.GetTags()
 	js, err := json.Marshal(tags)
