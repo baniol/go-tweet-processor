@@ -17,17 +17,17 @@ func InitHandlers(dblayer db.DBLayer) {
 
 	log.Println("Handlers initiated")
 
-	http.HandleFunc("/", home)
+	// http.HandleFunc("/", home)
 	http.HandleFunc("/count", h.countHandler)
 	http.HandleFunc("/authors", h.authorsHandler)
 	// http.HandleFunc("/tags", h.tagsHandler)
 }
 
 // @TODO only for testing
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "A Go Web Server")
-	w.WriteHeader(200)
-}
+// func home(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Server", "A Go Web Server")
+// 	w.WriteHeader(200)
+// }
 
 func (rh *requestHandler) countHandler(w http.ResponseWriter, r *http.Request) {
 	count, err := rh.dbConn.CountTweets()

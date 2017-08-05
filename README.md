@@ -21,6 +21,7 @@
 1. Unit tests
     * table driven
     * test returning errors
+    * test headers
 
 2. Logger with loglevels
 
@@ -41,6 +42,7 @@
 ### HTTP server general
 
 * https://cryptic.io/go-http/
+* http://www.alexedwards.net/blog/organising-database-access - Env{}, interfaces, testing, context !!
 
 ### Testing
 
