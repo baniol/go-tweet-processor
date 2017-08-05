@@ -86,7 +86,7 @@ You should also make sure to test not just for success, but for failure too: tes
 ---
 https://gist.github.com/nmerouze/2e26a02d23c4c62173fd - example of how to apply Collection + modify Header with next + reflect.TypeOf
 
-https://github.com/thylong/regexrace !! - tests + deploy with kubectl
+https://github.com/thylong/regexrace !! - tests + deploy with kubectl, middleware auth jwt token, alice - run middleware for each request
 
 https://github.com/thylong/mongo_mock_go_example
 

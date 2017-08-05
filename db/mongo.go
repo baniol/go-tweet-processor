@@ -12,7 +12,7 @@ import (
 type DBLayer interface {
 	CountTweets() (int, error)
 	// InsertTweet([]byte)
-	GetAuthors() interface{}
+	GetAuthors() (interface{}, error)
 	// GetTags() []bson.M
 }
 
@@ -42,7 +42,7 @@ func (ms *MongoDataStore) CountTweets() (int, error) {
 	return coll.Count()
 }
 
-func (ms *MongoDataStore) GetAuthors() interface{} {
+func (ms *MongoDataStore) GetAuthors() (interface{}, error) {
 	session := ms.Copy()
 	defer session.Close()
 	coll := ms.getCollection()
@@ -64,12 +64,11 @@ func (ms *MongoDataStore) GetAuthors() interface{} {
 	pipe := coll.Pipe(pipeline)
 
 	var results []interface{}
-	err1 := pipe.All(&results)
-	// @TODO to return - bubble up
-	if err1 != nil {
-		log.Fatalf("ERROR : %s\n", err1.Error())
+	err := pipe.All(&results)
+	if err != nil {
+		return nil, err
 	}
-	return results
+	return results, nil
 }
 
 /*

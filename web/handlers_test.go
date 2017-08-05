@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	// "log"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,13 +15,14 @@ func (f *fakeMongo) CountTweets() (int, error) {
 	return 999, nil
 }
 
-func (f *fakeMongo) GetAuthors() interface{} {
+func (f *fakeMongo) GetAuthors() (interface{}, error) {
 
 	var res interface{}
 	str := `[{"_id":"Victorine Lenormand","tweets":12},{"_id":"Piki","tweets":4}]`
 	JSONString := []byte(str)
+	// json.NewDecoder(JSONString).Decode(&res)
 	json.Unmarshal(JSONString, &res)
-	return res
+	return res, nil
 }
 
 func getFakeInstance() *requestHandler {
@@ -78,6 +80,7 @@ func TestAuthorsHandler(t *testing.T) {
 	}
 
 	expected := "[{\"_id\":\"Victorine Lenormand\",\"tweets\":12},{\"_id\":\"Piki\",\"tweets\":4}]"
+	fmt.Printf("%T\n", rr.Body)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

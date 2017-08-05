@@ -1,13 +1,10 @@
 package web
 
 import (
-	"fmt"
-	// "gopkg.in/mgo.v2/dbtest"
 	"encoding/json"
 	"go-tweet-processor/db"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type requestHandler struct {
@@ -20,24 +17,42 @@ func InitHandlers(dblayer db.DBLayer) {
 
 	log.Println("Handlers initiated")
 
+	http.HandleFunc("/", home)
 	http.HandleFunc("/count", h.countHandler)
 	http.HandleFunc("/authors", h.authorsHandler)
 	// http.HandleFunc("/tags", h.tagsHandler)
 }
 
+// @TODO only for testing
+func home(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "A Go Web Server")
+	w.WriteHeader(200)
+}
+
 func (rh *requestHandler) countHandler(w http.ResponseWriter, r *http.Request) {
-	count, _ := rh.dbConn.CountTweets()
-	fmt.Fprint(w, strconv.Itoa(count))
+	count, err := rh.dbConn.CountTweets()
+	if err != nil {
+		log.Println("CountTweets error: ", err)
+		errorResponse(w)
+		return
+	}
+	c := struct {
+		Count int `json:"count"`
+	}{count}
+	js, _ := json.Marshal(c)
+	w.Write(js)
 }
 
 func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request) {
-	authors := rh.dbConn.GetAuthors()
-	js, err := json.Marshal(authors) // encoder ? move marshaling to db llayer ?
+	authors, err := rh.dbConn.GetAuthors()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("GetAuthors error: ", err)
+		errorResponse(w)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	js, _ := json.Marshal(authors) // encoder ? move marshaling to db llayer ?
+	addHeaders(w)
+	// json.NewEncoder(w).Encode(authors)
 	w.Write(js) // io.WriteString(w, `{"alive": true}`) ?
 }
 

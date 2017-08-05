@@ -2,11 +2,50 @@
 
 ## TODO
 
-* server with raw net/http (no echo framework)
 * work on api responses, errors, etc.
 * log levels (logrus, echo logger ?)
 * log level setup to env variable
 * log db conn errors to logger, output internal error to http res
 * mongo index optimisation
-* http server logic to http package
 * unit tests
+* unit tests for error cases - table driven tests ?
+* content size , chunked transfer ? how to return body size?
+* marshal or encode ?
+* mongo reconnects
+
+
+---
+
+## TODO sequence
+
+1. Unit tests
+    * table driven
+    * test returning errors
+
+2. Logger with loglevels
+
+3. Better way of error handling
+
+4. Middleware - context ?
+    * adding headers ?
+    * auth - jwt
+
+5. MongoDB reconnect / circuit breaker / backoff ?
+
+6. Abstract away configuration from os.Getenv
+
+
+---
+## Read:
+
+### HTTP server general
+
+* https://cryptic.io/go-http/
+
+### Testing
+
+* advanced testing video
+
+### Context
+
+* https://joeshaw.org/revisiting-context-and-http-handler-for-go-17/
