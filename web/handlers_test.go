@@ -32,6 +32,31 @@ func (f *fakeMongo) GetAuthors() (interface{}, error) {
 	return res, nil
 }
 
+func (f *fakeMongo) GetTags() (interface{}, error) {
+	if f.Error == true {
+		return "", errors.New("DB get tags error")
+	}
+	var res interface{}
+	str := `
+	[
+		{
+		"_id": "syria",
+		"count": 115
+		},
+		{
+		"_id": "isis",
+		"count": 13
+		},
+		{
+		"_id": "raqqa",
+		"count": 11
+		}
+	]`
+	JSONString := []byte(str)
+	json.Unmarshal(JSONString, &res)
+	return res, nil
+}
+
 func getFakeInstance(er bool) *requestHandler {
 	fakeDB := &fakeMongo{Error: er}
 	rh := new(requestHandler)
@@ -117,6 +142,52 @@ func TestAuthorsHandlerDBError(t *testing.T) {
 	rr := httptest.NewRecorder()
 	rh := getFakeInstance(true)
 	handler := http.HandlerFunc(rh.authorsHandler)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+
+	expected := "{\"error\":\"Internal Server Error\"}"
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
+func TestTagsHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/tags", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	rh := getFakeInstance(false)
+	handler := http.HandlerFunc(rh.tagsHandler)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	expected := "[{\"_id\":\"syria\",\"count\":115},{\"_id\":\"isis\",\"count\":13},{\"_id\":\"raqqa\",\"count\":11}]"
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
+func TestTagsHandlerDBError(t *testing.T) {
+	req, err := http.NewRequest("GET", "/tags", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	rh := getFakeInstance(true)
+	handler := http.HandlerFunc(rh.tagsHandler)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusInternalServerError {

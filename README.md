@@ -12,6 +12,9 @@
 * content size , chunked transfer ? how to return body size?
 * marshal or encode ?
 * mongo reconnects
+* check how echo handles writing JSON to res
+* recover from panic on handler erros ?
+* implement gorilla/mux
 
 
 ---
@@ -36,6 +39,7 @@
 6. Abstract away configuration from os.Getenv
 
 
+
 ---
 ## Read:
 
@@ -43,6 +47,8 @@
 
 * https://cryptic.io/go-http/
 * http://www.alexedwards.net/blog/organising-database-access - Env{}, interfaces, testing, context !!
+* https://gowebexamples.github.io/
+* https://www.rickyanto.com/understanding-go-standard-http-libraries-servemux-handler-handle-and-handlefunc/
 
 ### Testing
 

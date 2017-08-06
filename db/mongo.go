@@ -13,7 +13,8 @@ type DBLayer interface {
 	CountTweets() (int, error)
 	// InsertTweet([]byte)
 	GetAuthors() (interface{}, error)
-	// GetTags() []bson.M
+	GetTags() (interface{}, error)
+	GetAuthorTweets(string) (interface{}, error)
 }
 
 type MongoDataStore struct {
@@ -71,8 +72,7 @@ func (ms *MongoDataStore) GetAuthors() (interface{}, error) {
 	return results, nil
 }
 
-/*
-func (ms *MongoDataStore) GetTags() []bson.M {
+func (ms *MongoDataStore) GetTags() (interface{}, error) {
 	session := ms.Copy()
 	defer session.Close()
 	coll := ms.getCollection()
@@ -107,17 +107,16 @@ func (ms *MongoDataStore) GetTags() []bson.M {
 
 	pipe := coll.Pipe(pipeline)
 
-	results := []bson.M{}
-	err1 := pipe.All(&results)
-	// @TODO to return - bubble up
-	if err1 != nil {
-		log.Fatalf("ERROR : %s\n", err1.Error())
+	var results []interface{}
+	err := pipe.All(&results)
+	if err != nil {
+		return nil, err
 	}
-	return results
+	return results, nil
 }
 
 //@TODO return else than interface{}
-func (ms *MongoDataStore) GetAuthorTweets(name string) interface{} {
+func (ms *MongoDataStore) GetAuthorTweets(name string) (interface{}, error) {
 	session := ms.Copy()
 	defer session.Close()
 	coll := ms.getCollection()
@@ -130,11 +129,11 @@ func (ms *MongoDataStore) GetAuthorTweets(name string) interface{} {
 	err := coll.Find(bson.M{"user.name": name}).Select(bson.M{"text": 1}).Sort("-_id").All(&names)
 	// @TODO return and bubble error
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return names
+	return names, nil
 }
-*/
+
 func (ms *MongoDataStore) InsertTweet(tweet []byte) {
 	session := ms.Copy()
 	defer session.Close()

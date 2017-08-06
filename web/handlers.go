@@ -5,6 +5,7 @@ import (
 	"go-tweet-processor/db"
 	"log"
 	"net/http"
+	"regexp"
 )
 
 type requestHandler struct {
@@ -20,7 +21,8 @@ func InitHandlers(dblayer db.DBLayer) {
 	// http.HandleFunc("/", home)
 	http.HandleFunc("/count", h.countHandler)
 	http.HandleFunc("/authors", h.authorsHandler)
-	// http.HandleFunc("/tags", h.tagsHandler)
+	http.HandleFunc("/tags", h.tagsHandler)
+	http.HandleFunc("/author/", h.authorTweetsHandler)
 }
 
 // @TODO only for testing
@@ -56,19 +58,28 @@ func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request)
 	w.Write(js) // io.WriteString(w, `{"alive": true}`) ?
 }
 
-/*
 func (rh *requestHandler) tagsHandler(w http.ResponseWriter, r *http.Request) {
-	tags := rh.dbConn.GetTags()
-	js, err := json.Marshal(tags)
+	tags, err := rh.dbConn.GetTags()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("GetAuthors error: ", err)
+		errorResponse(w)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	js, _ := json.Marshal(tags)
+	addHeaders(w)
 	w.Write(js)
 }
-*/
-// func authorTweets(c echo.Context) error {
-// 	names := mgs.GetAuthorTweets(c.Param("name"))
-// 	return c.JSON(http.StatusOK, names)
-// }
+
+func (rh *requestHandler) authorTweetsHandler(w http.ResponseWriter, r *http.Request) {
+	re := regexp.MustCompile("/author/(.*)")
+	name := re.FindAllStringSubmatch(r.URL.String(), -1)
+	tweets, err := rh.dbConn.GetAuthorTweets(name[0][1])
+	if err != nil {
+		log.Println("GetAuthorTweets error: ", err)
+		errorResponse(w)
+		return
+	}
+	js, _ := json.Marshal(tweets)
+	addHeaders(w)
+	w.Write(js)
+}
