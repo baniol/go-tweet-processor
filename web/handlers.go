@@ -5,6 +5,7 @@ import (
 	"go-tweet-processor/db"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 )
 
@@ -35,7 +36,7 @@ func (rh *requestHandler) countHandler(w http.ResponseWriter, r *http.Request) {
 	count, err := rh.dbConn.CountTweets()
 	if err != nil {
 		log.Println("CountTweets error: ", err)
-		errorResponse(w)
+		internalErrorResponse(w)
 		return
 	}
 	c := struct {
@@ -49,7 +50,7 @@ func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request)
 	authors, err := rh.dbConn.GetAuthors()
 	if err != nil {
 		log.Println("GetAuthors error: ", err)
-		errorResponse(w)
+		internalErrorResponse(w)
 		return
 	}
 	js, _ := json.Marshal(authors) // encoder ? move marshaling to db llayer ?
@@ -62,7 +63,7 @@ func (rh *requestHandler) tagsHandler(w http.ResponseWriter, r *http.Request) {
 	tags, err := rh.dbConn.GetTags()
 	if err != nil {
 		log.Println("GetAuthors error: ", err)
-		errorResponse(w)
+		internalErrorResponse(w)
 		return
 	}
 	js, _ := json.Marshal(tags)
@@ -72,14 +73,25 @@ func (rh *requestHandler) tagsHandler(w http.ResponseWriter, r *http.Request) {
 
 func (rh *requestHandler) authorTweetsHandler(w http.ResponseWriter, r *http.Request) {
 	re := regexp.MustCompile("/author/(.*)")
-	name := re.FindAllStringSubmatch(r.URL.String(), -1)
-	tweets, err := rh.dbConn.GetAuthorTweets(name[0][1])
+	match := re.FindAllStringSubmatch(r.URL.String(), -1)
+	name, err := url.QueryUnescape(match[0][1])
+	if err != nil {
+		log.Println("Error parsing query string param: ", err)
+		badRequestResponse(w)
+		return
+	}
+	tweets, err := rh.dbConn.GetAuthorTweets(name)
 	if err != nil {
 		log.Println("GetAuthorTweets error: ", err)
-		errorResponse(w)
+		internalErrorResponse(w)
 		return
 	}
 	js, _ := json.Marshal(tweets)
+	if string(js) == "[]" {
+		log.Printf("Author not found: %s\n", name)
+		badRequestResponse(w)
+		return
+	}
 	addHeaders(w)
 	w.Write(js)
 }

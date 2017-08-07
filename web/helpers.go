@@ -5,12 +5,22 @@ import (
 	"net/http"
 )
 
-func errorResponse(w http.ResponseWriter) {
+func internalErrorResponse(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json") // @TODO addHeaders() instead ?
 	w.WriteHeader(http.StatusInternalServerError)
 	retError := struct {
 		Error string `json:"error"`
 	}{"Internal Server Error"}
+	js, _ := json.Marshal(retError)
+	w.Write(js)
+}
+
+func badRequestResponse(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json") // @TODO addHeaders() instead ?
+	w.WriteHeader(http.StatusBadRequest)
+	retError := struct {
+		Error string `json:"error"`
+	}{"Bad Request"}
 	js, _ := json.Marshal(retError)
 	w.Write(js)
 }
