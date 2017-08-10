@@ -176,3 +176,15 @@ func TestNumberDumper(t *T) {
 
 }
 ```
+
+---
+
+https://www.rickyanto.com/understanding-go-standard-http-libraries-servemux-handler-handle-and-handlefunc/
+
+http.HandleFunc, http.ListenAndServe as functions we call to implement basic “hello world” kind web application. But in the background there is ServeMux as main component to map the url to handler.
+
+ServeMux is special Go struct that act as HTTP request multiplexer (kind of router) that map request to handler base on the URL pattern. On sample code above ServeMux definition doesn’t appear but there when we call HandleFunc, it actually call function of ServeMux implementation.
+
+Inside http package there is default ServeMux implementation that is stored as variable DefaultServeMux. Using this DefaultServeMux we can skip to define our own ServeMux implementation and directly utilize it by calling function Handle or HandleFunc inside http package.
+
+Handler is interface that define ServeHTTP function that will be called by ServeMux to process http request and send http response.
