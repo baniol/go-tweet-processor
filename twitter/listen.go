@@ -2,12 +2,13 @@ package twitter
 
 import (
 	"encoding/json"
-	"github.com/dghubble/go-twitter/twitter"
-	"github.com/dghubble/oauth1"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/dghubble/go-twitter/twitter"
+	"github.com/dghubble/oauth1"
 )
 
 func Listen(filterString string, callback func([]byte)) {

@@ -3,15 +3,15 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"log"
 	"os"
+
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type DBLayer interface {
 	CountTweets() (int, error)
-	// InsertTweet([]byte)
 	GetAuthors() (interface{}, error)
 	GetTags() (interface{}, error)
 	GetAuthorTweets(string) (interface{}, error)
@@ -121,13 +121,12 @@ func (ms *MongoDataStore) GetAuthorTweets(name string) (interface{}, error) {
 	defer session.Close()
 	coll := ms.getCollection()
 
-	//@TODO change to Twit type
+	//@TODO change to Tweet type
 	names := []struct {
 		Name string `bson:"text"`
 	}{}
 
 	err := coll.Find(bson.M{"user.name": name}).Select(bson.M{"text": 1}).Sort("-_id").All(&names)
-	// @TODO return and bubble error
 	if err != nil {
 		return nil, err
 	}

@@ -14,8 +14,9 @@
 * mongo reconnects
 * check how echo handles writing JSON to res
 * recover from panic on handler erros ?
-* implement gorilla/mux
 * access log
+* context
+* middleware
 
 
 ---

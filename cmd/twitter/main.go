@@ -6,8 +6,6 @@ import (
 	"log"
 )
 
-// var mgs *mongo.MongoDataStore
-
 var filterString = "syria"
 
 func main() {
@@ -15,10 +13,6 @@ func main() {
 	if err != nil {
 		log.Fatal("db error")
 	}
-
-	// web.InitHandlers(dblayer)
-
-	// mgs = mongo.NewMongoStore()
 	fn := dblayer.InsertTweet
 	twitter.Listen(filterString, fn)
 }

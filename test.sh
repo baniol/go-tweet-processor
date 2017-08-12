@@ -1,1 +1,1 @@
-docker-compose run --no-deps web go test ./web
+docker-compose run --no-deps web go test ./web -cover

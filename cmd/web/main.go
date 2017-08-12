@@ -14,6 +14,6 @@ func main() {
 		log.Fatal("db error")
 	}
 
-	web.InitHandlers(dblayer)
+	web.StartServer(dblayer)
 	http.ListenAndServe(":1323", nil)
 }

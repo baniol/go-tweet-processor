@@ -1,8 +1,6 @@
 // Created by cgo -godefs - DO NOT EDIT
 // cgo -godefs defs_linux.go
 
-// +build linux,mips64
-
 package ipv6
 
 const (
@@ -100,6 +98,8 @@ const (
 	sizeofGroupSourceReq = 0x108
 
 	sizeofICMPv6Filter = 0x20
+
+	sizeofSockFprog = 0x10
 )
 
 type kernelSockaddrStorage struct {

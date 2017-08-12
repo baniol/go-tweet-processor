@@ -5,17 +5,8 @@ import:
   - twitter
 - package: github.com/dghubble/oauth1
   version: v0.4.0
-- package: github.com/labstack/echo
-  version: v3.2.1
-- package: github.com/labstack/gommon
-  version: 0.2.2
-  subpackages:
-  - log
+- package: github.com/gorilla/mux
+  version: v1.4.0
 - package: gopkg.in/mgo.v2
   subpackages:
   - bson
-testImport:
-- package: github.com/stretchr/testify
-  version: v1.1.4
-  subpackages:
-  - assert

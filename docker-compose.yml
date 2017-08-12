@@ -2,18 +2,18 @@ version: '3'
 
 services:
 
-  # twitter:
-  #   command: go run cmd/twitter/main.go
-  #   depends_on:
-  #     - 'mongo'
-  #   image: golang
-  #   volumes:
-  #     - .:/go/src/go-tweet-processor
-  #   working_dir: /go/src/go-tweet-processor
-  #   links:
-  #     - mongo
-  #   env_file:
-  #     - .env
+  twitter:
+    command: go run cmd/twitter/main.go
+    depends_on:
+      - 'mongo'
+    image: golang
+    volumes:
+      - .:/go/src/go-tweet-processor
+    working_dir: /go/src/go-tweet-processor
+    links:
+      - mongo
+    env_file:
+      - .env
 
   web:
     command: go run cmd/web/main.go
