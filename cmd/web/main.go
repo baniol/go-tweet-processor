@@ -15,5 +15,5 @@ func main() {
 	}
 
 	web.StartServer(dblayer)
-	http.ListenAndServe(":1323", nil)
+	http.ListenAndServe(":1323", nil) // @TODO move to server
 }

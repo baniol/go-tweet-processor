@@ -2,16 +2,16 @@ package web
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 func (rh *requestHandler) countHandler(w http.ResponseWriter, r *http.Request) {
 	count, err := rh.dbConn.CountTweets()
 	if err != nil {
-		log.Println("CountTweets error: ", err)
+		log.Errorf("CountTweets error: %s", err)
 		internalErrorResponse(w)
 		return
 	}

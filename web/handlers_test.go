@@ -2,9 +2,7 @@ package web
 
 import (
 	"encoding/json"
-	// "log"
 	"errors"
-	// "fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"

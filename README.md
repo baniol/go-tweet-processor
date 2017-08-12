@@ -7,7 +7,6 @@
 * log level setup to env variable
 * log db conn errors to logger, output internal error to http res
 * mongo index optimisation
-* unit tests
 * unit tests for error cases - table driven tests ?
 * content size , chunked transfer ? how to return body size?
 * marshal or encode ?
@@ -24,8 +23,8 @@
 ## TODO sequence
 
 1. Unit tests
-    * table driven
-    * test returning errors
+    * table driven [LATER]
+    * test returning errors [DONE]
     * test headers
 
 2. Logger with loglevels
@@ -35,6 +34,7 @@
 4. Middleware - context ?
     * adding headers ?
     * auth - jwt
+    * access logging
 
 5. MongoDB reconnect / circuit breaker / backoff ?
 
