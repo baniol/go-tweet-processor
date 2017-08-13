@@ -3,7 +3,9 @@ package web
 import (
 	"go-tweet-processor/db"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,5 +26,7 @@ func StartServer(dblayer db.DBLayer) {
 	r.HandleFunc("/author/{name}", h.authorTweetsHandler)
 	http.Handle("/", r)
 	log.Info("Handlers initiated")
-	http.ListenAndServe(":1323", nil)
+	// Apache access logging
+	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
+	http.ListenAndServe(":1323", loggedRouter)
 }

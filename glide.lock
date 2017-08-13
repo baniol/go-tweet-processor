@@ -1,5 +1,5 @@
-hash: c668e0d91bec3c708bf467794ef86a8414a2c8181541775a06cd17f6eda686a0
-updated: 2017-08-12T23:27:32.777098042+02:00
+hash: f761ccfe91797684468f7b89847aa28a22480cfa37de1e489e9ff2c19420ca33
+updated: 2017-08-13T22:14:43.081732359+02:00
 imports:
 - name: github.com/cenkalti/backoff
   version: 61153c768f31ee5f130071d08fc82b85208528de
@@ -17,14 +17,12 @@ imports:
   - query
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/gorilla/handlers
+  version: a4043c62cc2329bacda331d33fc908ab11ef0ec3
 - name: github.com/gorilla/mux
   version: bcd8bc72b08df0f70df986b97f95590779502d31
 - name: github.com/sirupsen/logrus
   version: a3f95b5c423586578a4e099b11a46c2479628cac
-- name: golang.org/x/crypto
-  version: b176d7def5d71bdd214203491f89843ed217f420
-  subpackages:
-  - ssh/terminal
 - name: golang.org/x/net
   version: 1c05540f6879653db88113bc4a2b70aec4bd491f
   subpackages:
@@ -33,7 +31,6 @@ imports:
   version: e42485b6e20ae7d2304ec72e535b103ed350cc02
   subpackages:
   - unix
-  - windows
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:
