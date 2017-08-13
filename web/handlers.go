@@ -25,11 +25,11 @@ func (rh *requestHandler) countHandler(w http.ResponseWriter, r *http.Request) {
 func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request) {
 	authors, err := rh.dbConn.GetAuthors()
 	if err != nil {
-		log.Println("GetAuthors error: ", err)
+		log.Errorf("GetAuthors error: %s", err)
 		internalErrorResponse(w)
 		return
 	}
-	js, _ := json.Marshal(authors) // encoder ? move marshaling to db llayer ?
+	js, _ := json.Marshal(authors)
 	addHeaders(w)
 	w.Write(js)
 }
@@ -37,7 +37,7 @@ func (rh *requestHandler) authorsHandler(w http.ResponseWriter, r *http.Request)
 func (rh *requestHandler) tagsHandler(w http.ResponseWriter, r *http.Request) {
 	tags, err := rh.dbConn.GetTags()
 	if err != nil {
-		log.Println("GetAuthors error: ", err)
+		log.Errorf("GetTags error: %s", err)
 		internalErrorResponse(w)
 		return
 	}
@@ -51,13 +51,13 @@ func (rh *requestHandler) authorTweetsHandler(w http.ResponseWriter, r *http.Req
 	name := vars["name"]
 	tweets, err := rh.dbConn.GetAuthorTweets(name)
 	if err != nil {
-		log.Println("GetAuthorTweets error: ", err)
+		log.Errorf("GetAuthorTweets error: %s", err)
 		internalErrorResponse(w)
 		return
 	}
 	js, _ := json.Marshal(tweets)
 	if string(js) == "[]" {
-		log.Printf("Author not found: %s\n", name)
+		log.Warnf("Author not found: %s", name)
 		badRequestResponse(w)
 		return
 	}

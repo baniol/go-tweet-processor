@@ -2,10 +2,11 @@ package twitter
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
@@ -35,7 +36,7 @@ func Listen(filterString string, callback func([]byte)) {
 		body, _ := json.Marshal(tweet)
 		callback(body)
 	}
-	log.Printf("Starting Stream with `%s` filter", filterString)
+	log.Infof("Starting Stream with `%s` filter", filterString)
 
 	// FILTER
 	filterParams := &twitter.StreamFilterParams{
@@ -44,7 +45,7 @@ func Listen(filterString string, callback func([]byte)) {
 	}
 	stream, err := client.Streams.Filter(filterParams)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error connecting Twitter stream: %s", err)
 	}
 
 	// Receive messages until stopped or stream quits

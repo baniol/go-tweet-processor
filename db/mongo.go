@@ -3,9 +3,9 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -24,10 +24,10 @@ type MongoDataStore struct {
 // @TODO data store as a receiver ?
 func ConnectMongo() (*MongoDataStore, error) {
 	mongoURI := fmt.Sprintf("%s:%s", os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
-	log.Printf("Connecting to mongodb at: %s\n", mongoURI)
+	log.Infof("Connecting to mongodb at: %s", mongoURI)
 	session, err := mgo.Dial(mongoURI)
 	if err != nil {
-		log.Fatalf("Error connecting to the mongodb at %s\n", mongoURI)
+		log.Errorf("Error connecting to the mongodb at %s", mongoURI)
 	}
 	return &MongoDataStore{Session: session}, nil
 }
@@ -142,7 +142,7 @@ func (ms *MongoDataStore) InsertTweet(tweet []byte) {
 	json.Unmarshal(tweet, &tweetDecoded)
 	err := coll.Insert(tweetDecoded)
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf("Error inserting Tweet: %s", err)
 	}
 	log.Println("[√] Tweet inserted")
 }
