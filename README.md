@@ -16,6 +16,7 @@
 * context
 * middleware
 * document code
+* travis - see gorilla/handlers for example
 
 
 ---
@@ -36,7 +37,8 @@
 4. Middleware - context ?
     * adding headers ?
     * auth - jwt
-    * access logging
+    * access logging [DONE] - with gorilla/handlers
+        * missing request duration
 
 5. MongoDB reconnect / circuit breaker / backoff ?
 
@@ -50,19 +52,21 @@
 ### HTTP server general
 
 * https://cryptic.io/go-http/
-* http://www.alexedwards.net/blog/organising-database-access - Env{}, interfaces, testing, context !!
+* http://www.alexedwards.net/blog/organising-database-access - Env{}, interfaces, testing, context !!!
 * https://gowebexamples.github.io/
 * https://www.rickyanto.com/understanding-go-standard-http-libraries-servemux-handler-handle-and-handlefunc/
 * http://modocache.io/restful-go - rest server with many external libs, ex. for testing
 * https://medium.com/@jduv/simple-handler-tdd-in-golang-66fe2fa89a64
+* https://www.nicolasmerouze.com/how-to-render-json-api-golang-mongodb/ - mongodb, json !!
+* https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql - !!! - finish
 
 ### Testing
 
-* advanced testing video
+* advanced testing video !
 
 ### Context
 
-* https://joeshaw.org/revisiting-context-and-http-handler-for-go-17/
+* 
 
 ### Logging
 
@@ -70,6 +74,8 @@
 
 ### Middleware
 
+* https://joeshaw.org/revisiting-context-and-http-handler-for-go-17/ - context, finish reading ! (notes in dev-notes: `terraform-basics.md`)
 * http://www.alexedwards.net/blog/making-and-using-middleware
+* https://www.nicolasmerouze.com/share-values-between-middlewares-context-golang/ - from series
 * https://gist.github.com/cespare/3985516 - apache access logging
 * https://stackoverflow.com/questions/20987752/how-to-setup-access-error-log-for-http-listenandserve
