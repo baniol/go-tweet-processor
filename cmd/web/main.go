@@ -15,5 +15,6 @@ func main() {
 	}
 
 	web.InitHandlers(dblayer)
+	// TODO: Graceful shutdown + error handling
 	http.ListenAndServe(":1323", nil)
 }

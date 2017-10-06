@@ -12,6 +12,7 @@ import (
 type DBLayer interface {
 	CountTweets() (int, error)
 	// InsertTweet([]byte)
+	// TODO: return interface?
 	GetAuthors() (interface{}, error)
 	GetTags() (interface{}, error)
 	GetAuthorTweets(string) (interface{}, error)
@@ -25,10 +26,12 @@ type MongoDataStore struct {
 func ConnectMongo() (*MongoDataStore, error) {
 	mongoURI := fmt.Sprintf("%s:%s", os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
 	log.Printf("Connecting to mongodb at: %s\n", mongoURI)
+	// TODO: with timeout
 	session, err := mgo.Dial(mongoURI)
 	if err != nil {
 		log.Fatalf("Error connecting to the mongodb at %s\n", mongoURI)
 	}
+	// TODO: set monotonic
 	return &MongoDataStore{Session: session}, nil
 }
 
@@ -37,6 +40,7 @@ func (ms *MongoDataStore) getCollection() *mgo.Collection {
 }
 
 func (ms *MongoDataStore) CountTweets() (int, error) {
+	// TODO: getCopy to db function
 	session := ms.Copy()
 	defer session.Close()
 	coll := ms.getCollection()
