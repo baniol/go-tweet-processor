@@ -10,7 +10,7 @@ type requestHandler struct {
 	dbConn db.DBLayer
 }
 
-func InitHandlers(dblayer db.DBLayer) {
+func API(dblayer db.DBLayer) http.Handler {
 	h := new(requestHandler)
 	h.dbConn = dblayer // @TODO change name of dblayer
 
@@ -20,4 +20,6 @@ func InitHandlers(dblayer db.DBLayer) {
 	http.HandleFunc("/authors", h.authorsHandler)
 	http.HandleFunc("/tags", h.tagsHandler)
 	http.HandleFunc("/author/", h.authorTweetsHandler)
+
+	// TODO: return
 }
