@@ -5,6 +5,6 @@ ADD glide.* /
 WORKDIR /
 RUN make setup
 
-ADD ./ go/src/go-tweet-processor/
+ADD ./ go/src/github.com/baniol/go-tweet-processor/
 RUN make buildgo
 CMD ["/bin/bash"]

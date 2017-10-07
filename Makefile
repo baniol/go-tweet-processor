@@ -15,7 +15,7 @@ setup:
 	glide install
 
 buildgo:
-	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=${APP_BUILD_VER} -s" -a -installsuffix cgo -o main ./go/src/go-tweet-processor/cmd/twitter/main.go
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=${APP_BUILD_VER} -s" -a -installsuffix cgo -o main ./go/src/github.com/baniol/go-tweet-processor/cmd/twitter/main.go
 
 buildcmd:
 	go build -ldflags "-X main.version=${VERSION} -s" -o daznapi ./cmd_main/main.go # for local build

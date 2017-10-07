@@ -1,7 +1,3 @@
-// All material is licensed under the Apache License Version 2.0, January 2004
-// http://www.apache.org/licenses/LICENSE-2.0
-
-// Package web provides a thin layer of support for writing web services.
 package web
 
 import (
@@ -56,7 +52,8 @@ type Values struct {
 
 // A Handler is a type that handles an http request within our own little mini
 // framework.
-type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error
+// type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error
+type Handler func(w http.ResponseWriter, r *http.Request, params map[string]string) error
 
 // A Middleware is a type that wraps a handler to remove boilerplate or other
 // concerns not direct to any given Handler.
@@ -122,11 +119,12 @@ func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 		w.Header().Set(TraceIDHeader, v.TraceID)
 
 		// Call the wrapped handler functions.
-		handler(ctx, w, r, params)
+		handler(w, r, params)
 	}
 
 	// Add this handler for the specified verb and route.
-	a.TreeMux.Handle(verb, path, h)
+	// a.TreeMux.Handle(verb, path, h)
+	http.Handle(path, h)
 }
 
 // Group allows a segment of middleware to be shared amongst handlers.

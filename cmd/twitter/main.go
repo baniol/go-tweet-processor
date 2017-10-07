@@ -1,8 +1,8 @@
 package main
 
 import (
-	"go-tweet-processor/db"
-	"go-tweet-processor/twitter"
+	"github.com/baniol/go-tweet-processor/db"
+	"github.com/baniol/go-tweet-processor/twitter"
 	"log"
 )
 

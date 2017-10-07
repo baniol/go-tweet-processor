@@ -1,8 +1,9 @@
 package main
 
 import (
-	"go-tweet-processor/db"
-	"go-tweet-processor/web"
+	"github.com/baniol/go-tweet-processor/api"
+	"github.com/baniol/go-tweet-processor/db"
+	"github.com/baniol/go-tweet-processor/web"
 	"log"
 	"net/http"
 )
@@ -14,7 +15,7 @@ func main() {
 		log.Fatal("db error")
 	}
 
-	web.InitHandlers(dblayer)
+	// web.InitHandlers(dblayer)
 	// TODO: Graceful shutdown + error handling
-	http.ListenAndServe(":1323", nil)
+	http.ListenAndServe(":1323", api.API(dblayer))
 }
