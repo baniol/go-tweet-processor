@@ -1,18 +1,19 @@
-package web
+package api
 
 import (
 	"github.com/baniol/go-tweet-processor/db"
+	"github.com/baniol/go-tweet-processor/middleware"
+	"github.com/baniol/go-tweet-processor/web"
 	"log"
 	"net/http"
-
-	"github.com/baniol/go-tweet-processor/middleware"
 )
 
 type requestHandler struct {
 	dbConn db.DBLayer
 }
 
-func API(dblayer db.DBLayer) http.Handler {
+func InitHandlers(dblayer db.DBLayer) http.Handler {
+
 	h := new(requestHandler)
 	h.dbConn = dblayer // @TODO change name of dblayer
 
@@ -20,10 +21,10 @@ func API(dblayer db.DBLayer) http.Handler {
 
 	log.Println("Handlers initiated")
 
-	app.Handle("/count", h.countHandler)
-	app.Handle("/authors", h.authorsHandler)
-	app.Handle("/tags", h.tagsHandler)
-	app.Handle("/author/", h.authorTweetsHandler)
+	app.Handle("GET", "/count", h.countHandler)
+	app.Handle("GET", "/authors", h.authorsHandler)
+	app.Handle("GET", "/tags", h.tagsHandler)
+	app.Handle("GET", "/author/:name", h.authorTweetsHandler)
 
 	return app
 }

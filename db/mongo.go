@@ -131,7 +131,6 @@ func (ms *MongoDataStore) GetAuthorTweets(name string) (interface{}, error) {
 	}{}
 
 	err := coll.Find(bson.M{"user.name": name}).Select(bson.M{"text": 1}).Sort("-_id").All(&names)
-	// @TODO return and bubble error
 	if err != nil {
 		return nil, err
 	}
@@ -144,6 +143,7 @@ func (ms *MongoDataStore) InsertTweet(tweet []byte) {
 	coll := ms.getCollection()
 	// @TODO tweet struct
 	var tweetDecoded interface{}
+	// TODO: web.Unmarshal with validation ?
 	json.Unmarshal(tweet, &tweetDecoded)
 	err := coll.Insert(tweetDecoded)
 	if err != nil {

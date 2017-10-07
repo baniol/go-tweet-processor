@@ -33,4 +33,5 @@ func RequestLogger(next web.Handler) web.Handler {
 		// handling has been done including logging.
 		return nil
 	}
+
 }

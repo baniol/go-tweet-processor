@@ -77,7 +77,7 @@ func Error(cxt context.Context, w http.ResponseWriter, err error) {
 			Fields: e,
 		}
 
-		Respond(w, v, http.StatusBadRequest)
+		Respond(cxt, w, v, http.StatusBadRequest)
 		return
 	}
 
@@ -86,10 +86,10 @@ func Error(cxt context.Context, w http.ResponseWriter, err error) {
 
 // RespondError sends JSON describing the error
 func RespondError(ctx context.Context, w http.ResponseWriter, err error, code int) {
-	Respond(w, JSONError{Error: err.Error()}, code)
+	Respond(ctx, w, JSONError{Error: err.Error()}, code)
 }
 
-func Respond(w http.ResponseWriter, data interface{}, code int) {
+func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, code int) {
 	// TODO: is interface type ok?; what about validation against data type?
 	js, _ := json.Marshal(data)
 	// w.Header().Set("X-Content-Type-Options", "nosniff")

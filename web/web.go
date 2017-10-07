@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	// "github.com/dimfeld/httptreemux"
+	"github.com/dimfeld/httptreemux"
 	"github.com/pborman/uuid"
 	"gopkg.in/go-playground/validator.v8"
 )
@@ -53,7 +53,7 @@ type Values struct {
 // A Handler is a type that handles an http request within our own little mini
 // framework.
 // type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error
-type Handler func(w http.ResponseWriter, r *http.Request, params map[string]string) error
+type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error
 
 // A Middleware is a type that wraps a handler to remove boilerplate or other
 // concerns not direct to any given Handler.
@@ -63,17 +63,22 @@ type Middleware func(Handler) Handler
 // object for each of our http handlers. Feel free to add any configuration
 // data/logic on this App struct
 type App struct {
-	// *httptreemux.TreeMux
-	mw []Middleware
+	*httptreemux.TreeMux
+	mux *http.ServeMux
+	mw  []Middleware
 }
+
+// type requestHandler struct {
+// 	// dbConn db.DBLayer
+// }
 
 // New creates an App value that handle a set of routes for the application.
 // You can provide any number of middleware and they'll be used to wrap every
 // request handler.
 func New(mw ...Middleware) *App {
 	return &App{
-		// TreeMux: httptreemux.New(),
-		mw: mw,
+		TreeMux: httptreemux.New(),
+		mw:      mw,
 	}
 }
 
@@ -95,6 +100,7 @@ func (a *App) Use(mw ...Middleware) {
 
 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
 // pair, this makes for really easy, convenient routing.
+// func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 
 	// Wrap up the application-wide first, this will call the first function
@@ -119,12 +125,10 @@ func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 		w.Header().Set(TraceIDHeader, v.TraceID)
 
 		// Call the wrapped handler functions.
-		handler(w, r, params)
+		handler(ctx, w, r, params)
 	}
 
-	// Add this handler for the specified verb and route.
-	// a.TreeMux.Handle(verb, path, h)
-	http.Handle(path, h)
+	a.TreeMux.Handle(verb, path, h)
 }
 
 // Group allows a segment of middleware to be shared amongst handlers.
@@ -139,15 +143,16 @@ func (g *Group) Use(mw ...Middleware) {
 }
 
 // Handle proxies the Handle function of the underlying App.
-func (g *Group) Handle(verb, path string, handler Handler, mw ...Middleware) {
+// func (g *Group) Handle(verb, path string, handler Handler, mw ...Middleware) {
 
-	// Wrap up the route specific middleware last because rememeber, the
-	// middleware is wrapped backwards.
-	handler = wrapMiddleware(handler, mw)
+// 	// Wrap up the route specific middleware last because rememeber, the
+// 	// middleware is wrapped backwards.
+// 	handler = wrapMiddleware(handler, mw)
 
-	// Wrap it with the App wrapper and additionally the group level middleware.
-	g.app.Handle(verb, path, handler, g.mw...)
-}
+// 	// Wrap it with the App wrapper and additionally the group level middleware.
+// 	// g.app.Handle(verb, path, handler, g.mw...)
+// 	g.app.Handle(verb, path, handler)
+// }
 
 // wrapMiddleware wraps a handler with some middleware.
 func wrapMiddleware(handler Handler, mw []Middleware) Handler {
