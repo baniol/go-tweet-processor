@@ -6,12 +6,42 @@ import (
 	"strings"
 )
 
-// extractTypeInternal gets the actual underlying type of field value.
+const (
+	blank              = ""
+	namespaceSeparator = "."
+	leftBracket        = "["
+	rightBracket       = "]"
+	restrictedTagChars = ".[],|=+()`~!@#$%^&*\\\"/?<>{}"
+	restrictedAliasErr = "Alias '%s' either contains restricted characters or is the same as a restricted tag needed for normal operation"
+	restrictedTagErr   = "Tag '%s' either contains restricted characters or is the same as a restricted tag needed for normal operation"
+)
+
+var (
+	restrictedTags = map[string]struct{}{
+		diveTag:           {},
+		existsTag:         {},
+		structOnlyTag:     {},
+		omitempty:         {},
+		skipValidationTag: {},
+		utf8HexComma:      {},
+		utf8Pipe:          {},
+		noStructLevelTag:  {},
+	}
+)
+
+// ExtractType gets the actual underlying type of field value.
 // It will dive into pointers, customTypes and return you the
 // underlying value and it's kind.
-func (v *validate) extractTypeInternal(current reflect.Value, nullable bool) (reflect.Value, reflect.Kind, bool) {
+// it is exposed for use within you Custom Functions
+func (v *Validate) ExtractType(current reflect.Value) (reflect.Value, reflect.Kind) {
 
-BEGIN:
+	val, k, _ := v.extractTypeInternal(current, false)
+	return val, k
+}
+
+// only exists to not break backward compatibility, needed to return the third param for a bug fix internally
+func (v *Validate) extractTypeInternal(current reflect.Value, nullable bool) (reflect.Value, reflect.Kind, bool) {
+
 	switch current.Kind() {
 	case reflect.Ptr:
 
@@ -21,8 +51,7 @@ BEGIN:
 			return current, reflect.Ptr, nullable
 		}
 
-		current = current.Elem()
-		goto BEGIN
+		return v.extractTypeInternal(current.Elem(), nullable)
 
 	case reflect.Interface:
 
@@ -32,19 +61,17 @@ BEGIN:
 			return current, reflect.Interface, nullable
 		}
 
-		current = current.Elem()
-		goto BEGIN
+		return v.extractTypeInternal(current.Elem(), nullable)
 
 	case reflect.Invalid:
 		return current, reflect.Invalid, nullable
 
 	default:
 
-		if v.v.hasCustomFuncs {
+		if v.hasCustomFuncs {
 
-			if fn, ok := v.v.customFuncs[current.Type()]; ok {
-				current = reflect.ValueOf(fn(current))
-				goto BEGIN
+			if fn, ok := v.customTypeFuncs[current.Type()]; ok {
+				return v.extractTypeInternal(reflect.ValueOf(fn(current)), nullable)
 			}
 		}
 
@@ -52,29 +79,27 @@ BEGIN:
 	}
 }
 
-// getStructFieldOKInternal traverses a struct to retrieve a specific field denoted by the provided namespace and
+// GetStructFieldOK traverses a struct to retrieve a specific field denoted by the provided namespace and
 // returns the field, field kind and whether is was successful in retrieving the field at all.
-//
 // NOTE: when not successful ok will be false, this can happen when a nested struct is nil and so the field
 // could not be retrieved because it didn't exist.
-func (v *validate) getStructFieldOKInternal(val reflect.Value, namespace string) (current reflect.Value, kind reflect.Kind, found bool) {
+func (v *Validate) GetStructFieldOK(current reflect.Value, namespace string) (reflect.Value, reflect.Kind, bool) {
 
-BEGIN:
-	current, kind, _ = v.ExtractType(val)
+	current, kind := v.ExtractType(current)
 
 	if kind == reflect.Invalid {
-		return
+		return current, kind, false
 	}
 
-	if namespace == "" {
-		found = true
-		return
+	if namespace == blank {
+		return current, kind, true
 	}
 
 	switch kind {
 
 	case reflect.Ptr, reflect.Interface:
-		return
+
+		return current, kind, false
 
 	case reflect.Struct:
 
@@ -82,7 +107,7 @@ BEGIN:
 		fld := namespace
 		ns := namespace
 
-		if typ != timeType {
+		if typ != timeType && typ != timePtrType {
 
 			idx := strings.Index(namespace, namespaceSeparator)
 
@@ -90,7 +115,7 @@ BEGIN:
 				fld = namespace[:idx]
 				ns = namespace[idx+1:]
 			} else {
-				ns = ""
+				ns = blank
 			}
 
 			bracketIdx := strings.Index(fld, leftBracket)
@@ -100,9 +125,9 @@ BEGIN:
 				ns = namespace[bracketIdx:]
 			}
 
-			val = current.FieldByName(fld)
-			namespace = ns
-			goto BEGIN
+			current = current.FieldByName(fld)
+
+			return v.GetStructFieldOK(current, ns)
 		}
 
 	case reflect.Array, reflect.Slice:
@@ -123,9 +148,7 @@ BEGIN:
 			}
 		}
 
-		val = current.Index(arrIdx)
-		namespace = namespace[startIdx:]
-		goto BEGIN
+		return v.GetStructFieldOK(current.Index(arrIdx), namespace[startIdx:])
 
 	case reflect.Map:
 		idx := strings.Index(namespace, leftBracket) + 1
@@ -144,76 +167,48 @@ BEGIN:
 		switch current.Type().Key().Kind() {
 		case reflect.Int:
 			i, _ := strconv.Atoi(key)
-			val = current.MapIndex(reflect.ValueOf(i))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(i)), namespace[endIdx+1:])
 		case reflect.Int8:
 			i, _ := strconv.ParseInt(key, 10, 8)
-			val = current.MapIndex(reflect.ValueOf(int8(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(int8(i))), namespace[endIdx+1:])
 		case reflect.Int16:
 			i, _ := strconv.ParseInt(key, 10, 16)
-			val = current.MapIndex(reflect.ValueOf(int16(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(int16(i))), namespace[endIdx+1:])
 		case reflect.Int32:
 			i, _ := strconv.ParseInt(key, 10, 32)
-			val = current.MapIndex(reflect.ValueOf(int32(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(int32(i))), namespace[endIdx+1:])
 		case reflect.Int64:
 			i, _ := strconv.ParseInt(key, 10, 64)
-			val = current.MapIndex(reflect.ValueOf(i))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(i)), namespace[endIdx+1:])
 		case reflect.Uint:
 			i, _ := strconv.ParseUint(key, 10, 0)
-			val = current.MapIndex(reflect.ValueOf(uint(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(uint(i))), namespace[endIdx+1:])
 		case reflect.Uint8:
 			i, _ := strconv.ParseUint(key, 10, 8)
-			val = current.MapIndex(reflect.ValueOf(uint8(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(uint8(i))), namespace[endIdx+1:])
 		case reflect.Uint16:
 			i, _ := strconv.ParseUint(key, 10, 16)
-			val = current.MapIndex(reflect.ValueOf(uint16(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(uint16(i))), namespace[endIdx+1:])
 		case reflect.Uint32:
 			i, _ := strconv.ParseUint(key, 10, 32)
-			val = current.MapIndex(reflect.ValueOf(uint32(i)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(uint32(i))), namespace[endIdx+1:])
 		case reflect.Uint64:
 			i, _ := strconv.ParseUint(key, 10, 64)
-			val = current.MapIndex(reflect.ValueOf(i))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(i)), namespace[endIdx+1:])
 		case reflect.Float32:
 			f, _ := strconv.ParseFloat(key, 32)
-			val = current.MapIndex(reflect.ValueOf(float32(f)))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(float32(f))), namespace[endIdx+1:])
 		case reflect.Float64:
 			f, _ := strconv.ParseFloat(key, 64)
-			val = current.MapIndex(reflect.ValueOf(f))
-			namespace = namespace[endIdx+1:]
-
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(f)), namespace[endIdx+1:])
 		case reflect.Bool:
 			b, _ := strconv.ParseBool(key)
-			val = current.MapIndex(reflect.ValueOf(b))
-			namespace = namespace[endIdx+1:]
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(b)), namespace[endIdx+1:])
 
 		// reflect.Type = string
 		default:
-			val = current.MapIndex(reflect.ValueOf(key))
-			namespace = namespace[endIdx+1:]
+			return v.GetStructFieldOK(current.MapIndex(reflect.ValueOf(key)), namespace[endIdx+1:])
 		}
-
-		goto BEGIN
 	}
 
 	// if got here there was more namespace, cannot go any deeper

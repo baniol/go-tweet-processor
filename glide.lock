@@ -1,10 +1,10 @@
-hash: e7fb4ba7ff6b6dba2e34d18157e664c615229ad87777a38f0bf98710879ee5c6
-updated: 2017-10-07T08:46:53.482521217+02:00
+hash: f2100eda04dc69041b1c34e409edb413b616713702cdcfc954f0193946f1a643
+updated: 2017-10-08T21:58:13.293963605+02:00
 imports:
 - name: github.com/cenkalti/backoff
-  version: 61153c768f31ee5f130071d08fc82b85208528de
+  version: 61ba96c4d1002f22e06acb8e34a7650611125a63
 - name: github.com/dghubble/go-twitter
-  version: f74be7f0f20b142558537ca43852457f7c52e051
+  version: c4115fa44a928413e0b857e0eb47376ffde3a61a
   subpackages:
   - twitter
 - name: github.com/dghubble/oauth1
@@ -13,12 +13,6 @@ imports:
   version: 80ec33c6152a53edb5545864ca37567b506c4ca5
 - name: github.com/dimfeld/httptreemux
   version: f8d6d78a3e093c21a8b12df8e498df5458024086
-- name: github.com/go-playground/locales
-  version: 1e5f1161c6416a5ff48840eb8724a394e48cc534
-  subpackages:
-  - currency
-- name: github.com/go-playground/universal-translator
-  version: 71201497bace774495daed26a3874fd339e0b538
 - name: github.com/google/go-querystring
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
@@ -33,12 +27,27 @@ imports:
   version: e790cca94e6cc75c7064b1332e63811d4aae1a53
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/sirupsen/logrus
+  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
+- name: github.com/Sirupsen/logrus
+  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
+  repo: https://github.com/sirupsen/logrus.git
+  vcs: git
+- name: golang.org/x/crypto
+  version: 9419663f5a44be8b34ca85f08abc5fe1be11f8a3
+  subpackages:
+  - ssh/terminal
 - name: golang.org/x/net
-  version: cf4effbb9db1f3ef07f7e1891402991b6afbb276
+  version: a04bdaca5b32abe1c069418fb7088ae607de5bd0
   subpackages:
   - context
+- name: golang.org/x/sys
+  version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
+  subpackages:
+  - unix
+  - windows
 - name: gopkg.in/go-playground/validator.v8
-  version: a021b2ec9a8a8bb970f3f15bc42617cb520e8a64
+  version: 5f1438d3fca68893a817e4a66806cea46a9e4ebf
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

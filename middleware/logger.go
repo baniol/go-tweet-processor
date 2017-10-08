@@ -5,11 +5,11 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/baniol/go-tweet-processor/web"
+	log "github.com/sirupsen/logrus"
 )
 
 // RequestLogger writes some information about the request to the logs in
@@ -21,7 +21,8 @@ func RequestLogger(next web.Handler) web.Handler {
 		v := ctx.Value(web.KeyValues).(*web.Values)
 
 		next(ctx, w, r, params)
-
+		// TODO: rework the access log fomar - to JSON
+		// TODO: now its info level
 		log.Printf("%s : (%d) : %s %s -> %s (%s)",
 			v.TraceID,
 			v.StatusCode,

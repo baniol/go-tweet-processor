@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"runtime/debug"
 
 	"github.com/baniol/go-tweet-processor/web"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // ErrorHandler for catching and responding errors.
@@ -23,13 +23,13 @@ func ErrorHandler(next web.Handler) web.Handler {
 			if r := recover(); r != nil {
 
 				// Log the panic.
-				log.Printf("%s : ERROR : Panic Caught : %s\n", v.TraceID, r)
+				log.Errorf("%s : ERROR : Panic Caught : %s\n", v.TraceID, r)
 
 				// Respond with the error.
 				web.RespondError(ctx, w, errors.New("unhandled"), http.StatusInternalServerError)
 
 				// Print out the stack.
-				log.Printf("%s : ERROR : Stacktrace\n%s\n", v.TraceID, debug.Stack())
+				log.Errorf("%s : ERROR : Stacktrace\n%s\n", v.TraceID, debug.Stack())
 			}
 		}()
 
@@ -38,7 +38,7 @@ func ErrorHandler(next web.Handler) web.Handler {
 			if errors.Cause(err) != web.ErrNotFound {
 
 				// Log the error.
-				log.Printf("%s : ERROR : %+v\n", v.TraceID, err)
+				log.Errorf("%s : ERROR : %+v\n", v.TraceID, err)
 			}
 
 			// Respond with the error.

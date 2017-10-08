@@ -3,10 +3,11 @@ package db
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
-	"os"
 )
 
 type DBLayer interface {
@@ -25,7 +26,7 @@ type MongoDataStore struct {
 // @TODO data store as a receiver ?
 func ConnectMongo() (*MongoDataStore, error) {
 	mongoURI := fmt.Sprintf("%s:%s", os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
-	log.Printf("Connecting to mongodb at: %s\n", mongoURI)
+	log.Infoln("Connecting to mongodb at: %s\n", mongoURI)
 	// TODO: with timeout
 	session, err := mgo.Dial(mongoURI)
 	if err != nil {

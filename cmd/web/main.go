@@ -1,12 +1,20 @@
 package main
 
 import (
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/baniol/go-tweet-processor/api"
 	"github.com/baniol/go-tweet-processor/db"
-	"log"
-	"net/http"
-	"time"
+	log "github.com/sirupsen/logrus"
 )
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.InfoLevel)
+}
 
 func main() {
 
@@ -26,6 +34,8 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
+
+	log.Infoln("Starting twit processor server")
 
 	server.ListenAndServe()
 }

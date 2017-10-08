@@ -2,40 +2,39 @@ package web
 
 import (
 	"context"
-	"encoding/json"
-	// "fmt"
-	"io"
+	// "encoding/json"
+	// "io"
 	"net/http"
 	"time"
 
 	"github.com/dimfeld/httptreemux"
 	"github.com/pborman/uuid"
-	"gopkg.in/go-playground/validator.v8"
+	// "gopkg.in/go-playground/validator.v8"
 )
 
 // TraceIDHeader is the header added to outgoing requests which adds the
 // traceID to it.
 const TraceIDHeader = "X-Trace-ID"
 
-var validate = validator.New()
+// var validate = validator.New()
 
-// Unmarshal decodes the input to the struct type and checks the
-// fields to verify the value is in a proper state.
-func Unmarshal(r io.Reader, v interface{}) error {
-	if err := json.NewDecoder(r).Decode(v); err != nil {
-		return err
-	}
+// // Unmarshal decodes the input to the struct type and checks the
+// // fields to verify the value is in a proper state.
+// func Unmarshal(r io.Reader, v interface{}) error {
+// 	if err := json.NewDecoder(r).Decode(v); err != nil {
+// 		return err
+// 	}
 
-	var inv InvalidError
-	if fve := validate.Struct(v); fve != nil {
-		for _, fe := range fve.(validator.ValidationErrors) {
-			inv = append(inv, Invalid{Fld: fe.Field(), Err: fe.Tag()})
-		}
-		return inv
-	}
+// 	var inv InvalidError
+// 	if fve := validate.Struct(v); fve != nil {
+// 		for _, fe := range fve.(validator.ValidationErrors) {
+// 			inv = append(inv, Invalid{Fld: fe.Field(), Err: fe.Tag()})
+// 		}
+// 		return inv
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // Key represents the type of value for the context key.
 type ctxKey int

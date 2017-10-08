@@ -1,0 +1,10 @@
+FROM golang
+
+ADD Makefile /
+ADD glide.* /
+WORKDIR /
+# RUN make setup
+
+ADD ./ go/src/github.com/baniol/go-tweet-processor/
+RUN make {{buildgo}}
+CMD ["/bin/bash"]

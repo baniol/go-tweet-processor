@@ -5,7 +5,21 @@ based on tags.
 It can also handle Cross-Field and Cross-Struct validation for nested structs
 and has the ability to dive into arrays and maps of any type.
 
-see more examples https://github.com/go-playground/validator/tree/v9/_examples
+Why not a better error message?
+Because this library intends for you to handle your own error messages.
+
+Why should I handle my own errors?
+Many reasons. We built an internationalized application and needed to know the
+field, and what validation failed so we could provide a localized error.
+
+	if fieldErr.Field == "Name" {
+		switch fieldErr.ErrorTag
+		case "required":
+			return "Translated string based on field + error"
+		default:
+		return "Translated string based on field"
+	}
+
 
 Validation Functions Return Type error
 
@@ -20,20 +34,18 @@ where err is always != nil:
 	http://stackoverflow.com/a/29138676/3158232
 	https://github.com/go-playground/validator/issues/134
 
-Validator only InvalidValidationError for bad validation input, nil or
-ValidationErrors as type error; so, in your code all you need to do is check
-if the error returned is not nil, and if it's not check if error is
-InvalidValidationError ( if necessary, most of the time it isn't ) type cast
-it to type ValidationErrors like so err.(validator.ValidationErrors).
+Validator only returns nil or ValidationErrors as type error; so, in your code
+all you need to do is check if the error returned is not nil, and if it's not
+type cast it to type ValidationErrors like so err.(validator.ValidationErrors).
 
-Custom Validation Functions
+Custom Functions
 
-Custom Validation functions can be added. Example:
+Custom functions can be added. Example:
 
 	// Structure
-	func customFunc(fl FieldLevel) bool {
+	func customFunc(v *Validate, topStruct reflect.Value, currentStructOrField reflect.Value, field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string) bool {
 
-		if fl.Field().String() == "invalid" {
+		if whatever {
 			return false
 		}
 
@@ -56,7 +68,7 @@ Cross-Field Validation can be done via the following tags:
 	- eqcsfield
 	- necsfield
 	- gtcsfield
-	- gtecsfield
+	- ftecsfield
 	- ltcsfield
 	- ltecsfield
 
@@ -180,6 +192,17 @@ Same as structonly tag except that any struct level validations will not run.
 
 	Usage: nostructlevel
 
+Exists
+
+Is a special tag without a validation function attached. It is used when a field
+is a Pointer, Interface or Invalid and you wish to validate that it exists.
+Example: want to ensure a bool exists if you define the bool as a pointer and
+use exists it will ensure there is a value; couldn't use required as it would
+fail when the bool was false. exists will fail is the value is a Pointer, Interface
+or Invalid and is nil.
+
+	Usage: exists
+
 Omit Empty
 
 Allows conditional validation, for example if a field is not set with
@@ -220,16 +243,9 @@ ensures the value is not nil.
 
 	Usage: required
 
-Is Default
-
-This validates that the value is the default value and is almost the
-opposite of required.
-
-	Usage: isdefault
-
 Length
 
-For numbers, length will ensure that the value is
+For numbers, max will ensure that the value is
 equal to the parameter given. For strings, it checks that
 the string length is exactly that number of characters. For slices,
 arrays, and maps, validates the number of items.
@@ -245,7 +261,7 @@ slices, arrays, and maps, validates the number of items.
 
 	Usage: max=10
 
-Minimum
+Mininum
 
 For numbers, min will ensure that the value is
 greater or equal to the parameter given. For strings, it checks that
@@ -470,27 +486,15 @@ to the top level struct.
 
 Alpha Only
 
-This validates that a string value contains ASCII alpha characters only
+This validates that a string value contains alpha characters only
 
 	Usage: alpha
 
 Alphanumeric
 
-This validates that a string value contains ASCII alphanumeric characters only
+This validates that a string value contains alphanumeric characters only
 
 	Usage: alphanum
-
-Alpha Unicode
-
-This validates that a string value contains unicode alpha characters only
-
-	Usage: alphaunicode
-
-Alphanumeric Unicode
-
-This validates that a string value contains unicode alphanumeric characters only
-
-	Usage: alphanumunicode
 
 Numeric
 
@@ -661,7 +665,7 @@ Printable ASCII
 This validates that a string value contains only printable ASCII characters.
 NOTE: if the string is blank, this validates as true.
 
-	Usage: printascii
+	Usage: asciiprint
 
 Multi-Byte Characters
 
@@ -800,18 +804,6 @@ This validates that a string value contains a valid MAC Adress.
 Note: See Go's ParseMAC for accepted formats and types:
 
 	http://golang.org/src/net/mac.go?s=866:918#L29
-
-Hostname
-
-This validates that a string value is a valid Hostname
-
-	Usage: hostname
-
-Full Qualified Domain Name (FQDN)
-
-This validates that a string value contains a valid FQDN.
-
-	Usage: fqdn
 
 Alias Validators and Tags
 

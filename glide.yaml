@@ -1,5 +1,11 @@
 package: github.com/baniol/go-tweet-processor
 import:
+- package: github.com/sirupsen/logrus
+  version: v1.0.3
+- package: github.com/Sirupsen/logrus
+  repo: https://github.com/sirupsen/logrus.git
+  vcs: git
+  version: v1.0.3
 - package: github.com/dghubble/go-twitter
   subpackages:
   - twitter

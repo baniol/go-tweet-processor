@@ -1,31 +1,31 @@
 APP_BUILD_VER ?= %appVersion%
+APP_NAME=go-tweet-processor
+DEPEND=github.com/Masterminds/glide
+IMAGE_WEB=go-tweet-processor-web
 
-DEPEND=github.com/Masterminds/glide 
+# setup:
+# 	go get -v $(DEPEND)
+# 	glide install -force
 
-default: builddocker
+preparedockerfile:
+	sed "s@{{buildgo}}@buildgoweb@g" "Dockerfile.build.template" > "Dockerfile.build"
 
-depend:
-	go get -v $(DEPEND)
-	glide install
+buildgostream:
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=${APP_BUILD_VER} -s" -a -installsuffix cgo -o main ./go/src/github.com/baniol/${APP_NAME}/cmd/twitter/main.go
 
-setup:
-	# go get github.com/aws/aws-sdk-go/aws
-	# go get gopkg.in/urfave/cli.v1
-	go get -v $(DEPEND)
-	glide install
+buildgoweb:
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=${APP_BUILD_VER} -s" -a -installsuffix cgo -o main ./go/src/github.com/baniol/${APP_NAME}/cmd/web/main.go
 
-buildgo:
-	CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=${APP_BUILD_VER} -s" -a -installsuffix cgo -o main ./go/src/github.com/baniol/go-tweet-processor/cmd/twitter/main.go
-
-buildcmd:
-	go build -ldflags "-X main.version=${VERSION} -s" -o daznapi ./cmd_main/main.go # for local build
-
-builddocker:
-	docker build -t twitter-processor-2 -f ./Dockerfile.build .
-	docker run -t twitter-processor-2 /bin/true
+builddockerstream:
+	docker build -t ${IMAGE_WEB} -f ./Dockerfile.build .
+	docker run -t ${IMAGE_WEB} /bin/true
 	docker cp `docker ps -q -n=1`:/main .
 	chmod 755 ./main
-	docker build --rm=true --tag=twitter-processor-2 -f Dockerfile.static .
+	docker build --rm=true --tag=${IMAGE_WEB} -f Dockerfile.static .
 
-run: builddocker
-	docker run -p 9090:9090 twitter-processor
+builddockerweb:
+	docker build -t ${IMAGE_WEB} -f ./Dockerfile.build .
+	docker run -t ${IMAGE_WEB} /bin/true
+	docker cp `docker ps -q -n=1`:/main .
+	chmod 755 ./main
+	docker build --rm=true --tag=${IMAGE_WEB} -f Dockerfile.static .

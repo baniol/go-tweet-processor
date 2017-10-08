@@ -13,16 +13,11 @@ type tagType uint8
 const (
 	typeDefault tagType = iota
 	typeOmitEmpty
-	typeIsDefault
 	typeNoStructLevel
 	typeStructOnly
 	typeDive
 	typeOr
-)
-
-const (
-	invalidValidation   = "Invalid validation tag on field '%s'"
-	undefinedValidation = "Undefined validation function '%s' on field '%s'"
+	typeExists
 )
 
 type structCache struct {
@@ -70,17 +65,16 @@ func (tc *tagCache) Set(key string, value *cTag) {
 }
 
 type cStruct struct {
-	name   string
-	fields []*cField
-	fn     StructLevelFuncCtx
+	Name   string
+	fields map[int]*cField
+	fn     StructLevelFunc
 }
 
 type cField struct {
-	idx        int
-	name       string
-	altName    string
-	namesEqual bool
-	cTags      *cTag
+	Idx     int
+	Name    string
+	AltName string
+	cTags   *cTag
 }
 
 type cTag struct {
@@ -91,7 +85,7 @@ type cTag struct {
 	hasAlias       bool
 	typeof         tagType
 	hasTag         bool
-	fn             FuncCtx
+	fn             Func
 	next           *cTag
 }
 
@@ -109,7 +103,7 @@ func (v *Validate) extractStructCache(current reflect.Value, sName string) *cStr
 		return cs
 	}
 
-	cs = &cStruct{name: sName, fields: make([]*cField, 0), fn: v.structLevelFuncs[typ]}
+	cs = &cStruct{Name: sName, fields: make(map[int]*cField), fn: v.structLevelFuncs[typ]}
 
 	numFields := current.NumField()
 
@@ -122,7 +116,7 @@ func (v *Validate) extractStructCache(current reflect.Value, sName string) *cStr
 
 		fld = typ.Field(i)
 
-		if !fld.Anonymous && len(fld.PkgPath) > 0 {
+		if !fld.Anonymous && fld.PkgPath != blank {
 			continue
 		}
 
@@ -134,11 +128,12 @@ func (v *Validate) extractStructCache(current reflect.Value, sName string) *cStr
 
 		customName = fld.Name
 
-		if v.hasTagNameFunc {
+		if v.fieldNameTag != blank {
 
-			name := v.tagNameFunc(fld)
+			name := strings.SplitN(fld.Tag.Get(v.fieldNameTag), ",", 2)[0]
 
-			if len(name) > 0 {
+			// dash check is for json "-" (aka skipValidationTag) means don't output in json
+			if name != "" && name != skipValidationTag {
 				customName = name
 			}
 		}
@@ -147,20 +142,14 @@ func (v *Validate) extractStructCache(current reflect.Value, sName string) *cStr
 		// and so only struct level caching can be used instead of combined with Field tag caching
 
 		if len(tag) > 0 {
-			ctag, _ = v.parseFieldTagsRecursive(tag, fld.Name, "", false)
+			ctag, _ = v.parseFieldTagsRecursive(tag, fld.Name, blank, false)
 		} else {
 			// even if field doesn't have validations need cTag for traversing to potential inner/nested
 			// elements of the field.
 			ctag = new(cTag)
 		}
 
-		cs.fields = append(cs.fields, &cField{
-			idx:        i,
-			name:       fld.Name,
-			altName:    customName,
-			cTags:      ctag,
-			namesEqual: fld.Name == customName,
-		})
+		cs.fields[i] = &cField{Idx: i, Name: fld.Name, AltName: customName, cTags: ctag}
 	}
 
 	v.structCache.Set(typ, cs)
@@ -183,18 +172,20 @@ func (v *Validate) parseFieldTagsRecursive(tag string, fieldName string, alias s
 			alias = t
 		}
 
-		// check map for alias and process new tags, otherwise process as usual
-		if tagsVal, found := v.aliases[t]; found {
+		if v.hasAliasValidators {
+			// check map for alias and process new tags, otherwise process as usual
+			if tagsVal, found := v.aliasValidators[t]; found {
 
-			if i == 0 {
-				firstCtag, current = v.parseFieldTagsRecursive(tagsVal, fieldName, t, true)
-			} else {
-				next, curr := v.parseFieldTagsRecursive(tagsVal, fieldName, t, true)
-				current.next, current = next, curr
+				if i == 0 {
+					firstCtag, current = v.parseFieldTagsRecursive(tagsVal, fieldName, t, true)
+				} else {
+					next, curr := v.parseFieldTagsRecursive(tagsVal, fieldName, t, true)
+					current.next, current = next, curr
 
+				}
+
+				continue
 			}
-
-			continue
 		}
 
 		if i == 0 {
@@ -223,11 +214,11 @@ func (v *Validate) parseFieldTagsRecursive(tag string, fieldName string, alias s
 			current.typeof = typeNoStructLevel
 			continue
 
-		default:
+		case existsTag:
+			current.typeof = typeExists
+			continue
 
-			if t == isdefault {
-				current.typeof = typeIsDefault
-			}
+		default:
 
 			// if a pipe character is needed within the param you must use the utf8Pipe representation "0x7C"
 			orVals := strings.Split(t, orSeparator)
@@ -253,8 +244,8 @@ func (v *Validate) parseFieldTagsRecursive(tag string, fieldName string, alias s
 					panic(strings.TrimSpace(fmt.Sprintf(invalidValidation, fieldName)))
 				}
 
-				if current.fn, ok = v.validations[current.tag]; !ok {
-					panic(strings.TrimSpace(fmt.Sprintf(undefinedValidation, current.tag, fieldName)))
+				if current.fn, ok = v.validationFuncs[current.tag]; !ok {
+					panic(strings.TrimSpace(fmt.Sprintf(undefinedValidation, fieldName)))
 				}
 
 				if len(orVals) > 1 {
