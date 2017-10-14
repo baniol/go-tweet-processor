@@ -1,5 +1,18 @@
 # Go Tweet Processor
 
+## Current
+
+* mongodb package - starts in github.com/ardanlabs/gotraining/starter-kits/http/cmd/apid/main.go
+* mongo reconnect
+* analyze web/web.go
+* analyze web/response.go
+* analyze middleware (logger & error)
+* add jwt middleware - https://auth0.com/blog/authentication-in-golang/
+* errors pkg - github.com/pkg/errors/README.md
+* mongo unmarshal with validation - sending post to server
+* refactor tweet module (logs and all)
+* dependency diagram
+
 ## TODO
 
 * work on api responses, errors, etc.

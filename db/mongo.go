@@ -27,12 +27,11 @@ type MongoDataStore struct {
 func ConnectMongo() (*MongoDataStore, error) {
 	mongoURI := fmt.Sprintf("%s:%s", os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
 	log.Infoln("Connecting to mongodb at: %s\n", mongoURI)
-	// TODO: with timeout
 	session, err := mgo.Dial(mongoURI)
 	if err != nil {
 		log.Fatalf("Error connecting to the mongodb at %s\n", mongoURI)
 	}
-	// TODO: set monotonic
+	session.SetMode(mgo.Monotonic, true)
 	return &MongoDataStore{Session: session}, nil
 }
 

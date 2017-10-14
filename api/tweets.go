@@ -32,6 +32,8 @@ func (rh *requestHandler) authorsHandler(ctx context.Context, w http.ResponseWri
 
 func (rh *requestHandler) tagsHandler(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
 	tags, err := rh.dbConn.GetTags()
+	// TODO: errors.Wrap ?
+	// TODO: how does returning errors to user work ?
 	if err != nil {
 		return err
 	}

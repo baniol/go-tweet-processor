@@ -18,27 +18,28 @@ func init() {
 
 func main() {
 
-	// TODO: compare db mongo package with
-	// github.com/ardanlabs/gotraining/starter-kits/http/internal/platform/db/db.go
+	log.Infoln("Starting tweet processor server")
+
 	dblayer, err := db.ConnectMongo()
 	if err != nil {
-		log.Fatal("db error")
+		log.Fatal("DB connection failed")
 	}
 
-	// TODO: Graceful shutdown + error handling
-	// github.com/ardanlabs/gotraining/starter-kits/http/cmd/apid/main.go
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = ":1323"
+	}
 
 	m := api.InitHandlers(dblayer)
 
 	server := http.Server{
-		Addr:           ":1323",
+		Addr:           host,
 		Handler:        m,
 		ReadTimeout:    5 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Infoln("Starting twit processor server")
-
 	server.ListenAndServe()
+
 }
