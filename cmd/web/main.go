@@ -18,12 +18,15 @@ func init() {
 
 func main() {
 
+	// TODO: compare db mongo package with
+	// github.com/ardanlabs/gotraining/starter-kits/http/internal/platform/db/db.go
 	dblayer, err := db.ConnectMongo()
 	if err != nil {
 		log.Fatal("db error")
 	}
 
 	// TODO: Graceful shutdown + error handling
+	// github.com/ardanlabs/gotraining/starter-kits/http/cmd/apid/main.go
 
 	m := api.InitHandlers(dblayer)
 

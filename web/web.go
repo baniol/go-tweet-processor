@@ -49,9 +49,7 @@ type Values struct {
 	StatusCode int
 }
 
-// A Handler is a type that handles an http request within our own little mini
-// framework.
-// type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error
+// A Handler is a type that handles an http request
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error
 
 // A Middleware is a type that wraps a handler to remove boilerplate or other
@@ -67,10 +65,6 @@ type App struct {
 	mw  []Middleware
 }
 
-// type requestHandler struct {
-// 	// dbConn db.DBLayer
-// }
-
 // New creates an App value that handle a set of routes for the application.
 // You can provide any number of middleware and they'll be used to wrap every
 // request handler.
@@ -78,15 +72,6 @@ func New(mw ...Middleware) *App {
 	return &App{
 		TreeMux: httptreemux.New(),
 		mw:      mw,
-	}
-}
-
-// Group creates a new App Group based on the current App and provided
-// middleware.
-func (a *App) Group(mw ...Middleware) *Group {
-	return &Group{
-		app: a,
-		mw:  mw,
 	}
 }
 
@@ -99,7 +84,6 @@ func (a *App) Use(mw ...Middleware) {
 
 // Handle is our mechanism for mounting Handlers for a given HTTP verb and path
 // pair, this makes for really easy, convenient routing.
-// func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 
 	// Wrap up the application-wide first, this will call the first function
@@ -129,29 +113,6 @@ func (a *App) Handle(verb, path string, handler Handler, mw ...Middleware) {
 
 	a.TreeMux.Handle(verb, path, h)
 }
-
-// Group allows a segment of middleware to be shared amongst handlers.
-type Group struct {
-	app *App
-	mw  []Middleware
-}
-
-// Use adds the set of provided middleware onto the Application middleware chain.
-func (g *Group) Use(mw ...Middleware) {
-	g.mw = append(g.mw, mw...)
-}
-
-// Handle proxies the Handle function of the underlying App.
-// func (g *Group) Handle(verb, path string, handler Handler, mw ...Middleware) {
-
-// 	// Wrap up the route specific middleware last because rememeber, the
-// 	// middleware is wrapped backwards.
-// 	handler = wrapMiddleware(handler, mw)
-
-// 	// Wrap it with the App wrapper and additionally the group level middleware.
-// 	// g.app.Handle(verb, path, handler, g.mw...)
-// 	g.app.Handle(verb, path, handler)
-// }
 
 // wrapMiddleware wraps a handler with some middleware.
 func wrapMiddleware(handler Handler, mw []Middleware) Handler {

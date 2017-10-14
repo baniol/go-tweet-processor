@@ -13,11 +13,16 @@ type requestHandler struct {
 	dbConn db.DBLayer
 }
 
-// TODO: app is of type *App - but the function returns http.Handler
+// InitHandlers registers routes and middleware.
+// Returns http.Handler interface
+// Explanation: app is of type *App, but the function returns http.Handler
+// This is possible because App embeds *httptreemux.TreeMux which implements ServeHTTP function:
+// github.com/dimfeld/httptreemux/router.go
 func InitHandlers(dblayer db.DBLayer) http.Handler {
 
+	// TODO: to factory function ?
 	h := new(requestHandler)
-	h.dbConn = dblayer // @TODO change name of dblayer
+	h.dbConn = dblayer
 
 	app := web.New(middleware.RequestLogger, middleware.ErrorHandler)
 
